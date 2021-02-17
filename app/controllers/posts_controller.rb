@@ -1,15 +1,25 @@
 class PostsController < ApplicationController
+  before_action :authenticate_user!
 
   def index
-    @posts = Post.all
-    @new_post = Post.new
+    @users = User.find_by(params[:id])
+    @posts = Post.all.order("created_at DESC")
+    @post = current_user.posts.build
   end
 
   def create
-    @new_post = Post.new(post_params)
-    @new_post.save
+    @post = current_user.posts.build(post_params)
+    @post.save
 
     redirect_to root_path
+  end
+
+  def destroy
+    @post.destroy
+    respond_to do |format|
+      format.html { redirect_to post_url, notice: 'Link was successfully destroyed.' }
+      format.json { head :no_content }
+    end
   end
 
   private
